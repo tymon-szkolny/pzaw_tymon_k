@@ -26,7 +26,7 @@ const server = createServer((req, res) => {
 				res.end('Zła metoda\n');
 		}
 		else{
-				res.writeHead(200, { 'Content-Type': 'image/x-icon'});
+				res.writeHead(200, { 'Content-Type': 'image/vnd.microsoft.icon.'});
 				res.end(icon);
 		}
 	}
