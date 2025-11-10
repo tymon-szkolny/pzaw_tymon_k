@@ -1,0 +1,55 @@
+<form action="/przepisy/<%=category.id%>/new" method="POST">
+  <div>
+    <label for="recipe_name">Nazwa</label>
+    <input
+      type="text"
+      name="name"
+      id="recipe_name"
+      required
+      minlength="3"
+      maxlength="100"
+      <% if (locals.name){ %>
+      value="<%= name %>"
+      <% }%>
+    />
+  </div>
+  <div>
+    <label for="recipe_time">Czas</label>
+    <input
+      type="text"
+      name="time"
+      id="recipe_time"
+      required
+      minlength="1"
+      maxlength="50"
+      <% if (locals.time){ %>
+      value="<%= time %>"
+      <% }%>
+    />
+  </div>
+  <div>
+    <label for="recipe_ingredients">Składniki</label>
+    <textarea
+      name="ingredients"
+      id="recipe_ingredients"
+      required
+      minlength="5"
+      maxlength="1000"
+      rows="4"
+    ><% if (locals.ingredients){ %><%= ingredients %><% }%></textarea>
+  </div>
+  <div>
+    <label for="recipe_steps">Przygotowanie</label>
+    <textarea
+      name="steps"
+      id="recipe_steps"
+      required
+      minlength="5"
+      maxlength="1000"
+      rows="6"
+    ><% if (locals.steps){ %><%= steps %><% }%></textarea>
+  </div>
+  <div>
+    <button>Dodaj</button>
+  </div>
+</form>

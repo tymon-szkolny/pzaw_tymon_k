@@ -1,0 +1,18 @@
+html {
+    background-color: aquamarine;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18pt;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+main {
+    background-color: white;
+    width: 70rem;
+    padding: 1rem;
+    border-radius: 0.2rem;
+}
