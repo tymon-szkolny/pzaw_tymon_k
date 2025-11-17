@@ -2,14 +2,18 @@
 
 <main>
   <h1><%= title %></h1>
-  <ul id="cards">
-    <% category.cards.forEach(function(card){ %>
-    <li><%= card.front %> - <%= card.back %></li>
+  <ul id="recipes">
+    <% category.recipes.forEach(function(recipe){ %>
+    <li>
+      <strong><%= recipe.name %></strong> - <%= recipe.time %>
+      <p><%= recipe.ingredients %></p>
+      <p><%= recipe.steps %></p>
+    </li>
     <% }) %>
   </ul>
   <div>
-    <h3>Nowa fiszka</h3>
-    <%- include("forms/new_card.ejs") %>
+    <h3>Dodaj przepis</h3>
+    <%- include("forms/new_recipe.ejs") %>
   </div>
 </main>
 

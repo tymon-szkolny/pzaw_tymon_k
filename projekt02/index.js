@@ -1,5 +1,5 @@
 import express from "express";
-import flashcards from "./models/flashcards.js";
+import recipes from "./models/recipes.js";
 
 const port = 8000;
 
@@ -8,15 +8,21 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded());
 
-app.get("/cards", (req, res) => {
-  res.render("categories", {
-    title: "Kategorie",
-    categories: flashcards.getCategorySummaries(),
+app.get("/", (req, res) => {
+  res.render("index", {
+    title: "Moje Przepisy",
   });
 });
 
-app.get("/cards/:category_id", (req, res) => {
-  const category = flashcards.getCategory(req.params.category_id);
+app.get("/przepisy", (req, res) => {
+  res.render("recipes", {
+    title: "Przepisy",
+    categories: recipes.getCategories(),
+  });
+});
+
+app.get("/przepisy/:category_id", (req, res) => {
+  const category = recipes.getCategory(req.params.category_id);
   if (category != null) {
     res.render("category", {
       title: category.name,
@@ -27,26 +33,30 @@ app.get("/cards/:category_id", (req, res) => {
   }
 });
 
-app.post("/cards/:category_id/new", (req, res) => {
+app.post("/przepisy/:category_id/new", (req, res) => {
   const category_id = req.params.category_id;
-  if (!flashcards.hasCategory(category_id)) {
+  if (!recipes.hasCategory(category_id)) {
     res.sendStatus(404);
   } else {
-    let card_data = {
-      front: req.body.front,
-      back: req.body.back,
+    let recipe_data = {
+      name: req.body.name,
+      time: req.body.time,
+      ingredients: req.body.ingredients,
+      steps: req.body.steps,
     };
-    var errors = flashcards.validateCardData(card_data);
+    var errors = recipes.validateRecipe(recipe_data);
     if (errors.length == 0) {
-      flashcards.addCard(category_id, card_data);
-      res.redirect(`/cards/${category_id}`);
+      recipes.addRecipe(category_id, recipe_data);
+      res.redirect(`/przepisy/${category_id}`);
     } else {
       res.status(400);
-      res.render("new_card", {
+      res.render("new_recipe", {
         errors,
-        title: "Nowa fiszka",
-        front: req.body.front,
-        back: req.body.back,
+        title: "Nowy Przepis",
+        name: req.body.name,
+        time: req.body.time,
+        ingredients: req.body.ingredients,
+        steps: req.body.steps,
         category: {
           id: category_id,
         },
@@ -56,5 +66,5 @@ app.post("/cards/:category_id/new", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server listening on http://localhost:${port}`);
+  console.log(`Serwer działa na http://localhost:${port}`);
 });
