@@ -1,0 +1,67 @@
+<%- include("head.partial.ejs") %>
+
+<main>
+  <h1><%= title %></h1>
+  <% if (locals.errors && errors.length > 0) { %>
+  <ul id="errors">
+    <% errors.forEach(function(error){ %>
+    <li><%= error %></li>
+    <% }) %>
+  </ul>
+  <% } %>
+  
+  <form action="/przepisy/<%=category.id%>/edit/<%= recipe.recipe_id %>" method="POST">
+    <div>
+      <label for="recipe_name">Nazwa</label>
+      <input
+        type="text"
+        name="name"
+        id="recipe_name"
+        required
+        minlength="3"
+        maxlength="100"
+        value="<%= recipe.name %>"
+      />
+    </div>
+    <div>
+      <label for="recipe_time">Czas</label>
+      <input
+        type="text"
+        name="time"
+        id="recipe_time"
+        required
+        minlength="1"
+        maxlength="50"
+        value="<%= recipe.time %>"
+      />
+    </div>
+    <div>
+      <label for="recipe_ingredients">Składniki</label>
+      <textarea
+        name="ingredients"
+        id="recipe_ingredients"
+        required
+        minlength="5"
+        maxlength="1000"
+        rows="4"
+      ><%= recipe.ingredients %></textarea>
+    </div>
+    <div>
+      <label for="recipe_steps">Przygotowanie</label>
+      <textarea
+        name="steps"
+        id="recipe_steps"
+        required
+        minlength="5"
+        maxlength="1000"
+        rows="6"
+      ><%= recipe.steps %></textarea>
+    </div>
+    <div>
+      <button type="submit">Zapisz zmiany</button>
+      <a href="/przepisy/<%= category.id %>">Anuluj</a>
+    </div>
+  </form>
+</main>
+
+<%- include("foot.partial.ejs") %>

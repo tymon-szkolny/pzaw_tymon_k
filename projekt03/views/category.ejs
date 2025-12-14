@@ -1,0 +1,27 @@
+<%- include("head.partial.ejs") %>
+
+<main>
+  <h1><%= title %></h1>
+  <ul id="recipes">
+    <% category.recipes.forEach(function(recipe){ %>
+    <li>
+      <strong><%= recipe.name %></strong> - <%= recipe.time %>
+      <p><%= recipe.ingredients %></p>
+      <div class="recipe-actions">
+        <form action="/przepisy/<%= category.id %>/edit/<%= recipe.recipe_id %>" method="GET" style="display: inline;">
+          <button type="submit">Edytuj</button>
+        </form>
+        <form action="/przepisy/<%= category.id %>/delete/<%= recipe.recipe_id %>" method="POST" style="display: inline;">
+          <button type="submit" onclick="return confirm('Czy na pewno chcesz usunąć ten przepis?')">Usuń</button>
+        </form>
+      </div>
+    </li>
+    <% }) %>
+  </ul>
+  <div>
+    <h3>Dodaj przepis</h3>
+    <%- include("forms/new_recipe.ejs") %>
+  </div>
+</main>
+
+<%- include("foot.partial.ejs") %>
