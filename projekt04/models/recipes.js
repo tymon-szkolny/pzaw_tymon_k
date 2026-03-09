@@ -8,6 +8,7 @@ db.exec(
     category_id   INTEGER PRIMARY KEY,
     id            TEXT UNIQUE NOT NULL,
     name          TEXT NOT NULL
+    author_id     INTEGER NOT NULL REFERENCES fc_users(user_id) ON DELETE NO ACTION
   ) STRICT;
   CREATE TABLE IF NOT EXISTS recipes (
     recipe_id     INTEGER PRIMARY KEY,
@@ -21,7 +22,7 @@ db.exec(
 
 const db_ops = {
   insert_category: db.prepare(
-    `INSERT INTO recipe_categories (id, name)
+    `INSERT INTO recipe_categories (id, name, author_id)
         VALUES (?, ?) RETURNING category_id, id, name;`
   ),
   insert_recipe: db.prepare(

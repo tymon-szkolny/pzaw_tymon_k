@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import recipes from "./models/recipes.js";
+import session from "./models/session.js";  
 
 const port = 8000;
 
@@ -9,6 +10,14 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded());
 app.use(morgan("dev"));
+
+const authRouter = express.Router();
+authRouter.get("/signup", auth.signup_get);
+authRouter.post("/signup", auth.signup_post);
+authRouter.get("/login", auth.login_get);
+authRouter.post("/login", auth.login_post);
+authRouter.get("/logout", auth.logout);
+app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {
   res.render("index", {
