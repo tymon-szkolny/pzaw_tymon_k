@@ -5,7 +5,7 @@ const PEPPER = process.env.PEPPER;
 if (PEPPER == null) {
   console.error(
     `PEPPER environment variable missing.
-     Please create an env file or provide SECRET via environment variables.`,
+     Please create an env file or provide PEPPER via environment variables.`,
   );
   process.exit(1);
 }
@@ -28,7 +28,7 @@ db.exec(`
 
 const db_ops = {
   create_user: db.prepare(
-    "INSERT INTO fc_users (username, passhash, created_at) VALUES (?, ?, ?) RETURNING id;",
+    "INSERT INTO fc_users (username, passhash, created_at) VALUES (?, ?, ?) RETURNING id, username, created_at;",
   ),
   get_user: db.prepare(
     "SELECT id, username, created_at FROM fc_users WHERE id = ?;",

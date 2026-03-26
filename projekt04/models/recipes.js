@@ -3,70 +3,88 @@ import { DatabaseSync } from "node:sqlite";
 const db_path = "./db.sqlite";
 const db = new DatabaseSync(db_path);
 
+// create tables (ensure owner_id exists if table already present)
 db.exec(
   `CREATE TABLE IF NOT EXISTS recipe_categories (
     category_id   INTEGER PRIMARY KEY,
-    id            TEXT UNIQUE NOT NULL,
+    slug          TEXT UNIQUE NOT NULL,
     name          TEXT NOT NULL
-    author_id     INTEGER NOT NULL REFERENCES fc_users(user_id) ON DELETE NO ACTION
   ) STRICT;
   CREATE TABLE IF NOT EXISTS recipes (
     recipe_id     INTEGER PRIMARY KEY,
-    category_id   INTEGER NOT NULL REFERENCES recipe_categories(category_id) ON DELETE NO ACTION,
+    category_id   INTEGER NOT NULL,
     name          TEXT NOT NULL,
     time          TEXT NOT NULL,
     ingredients   TEXT NOT NULL,
-    steps         TEXT NOT NULL
+    steps         TEXT NOT NULL,
+    owner_id      INTEGER
   ) STRICT;`
 );
 
+// ensure owner_id column exists for older databases
+const cols = db.prepare("PRAGMA table_info(recipes);").all();
+if (!cols.some(c => c.name === "owner_id")) {
+  db.exec("ALTER TABLE recipes ADD COLUMN owner_id INTEGER;");
+}
+
 const db_ops = {
   insert_category: db.prepare(
-    `INSERT INTO recipe_categories (id, name, author_id)
-        VALUES (?, ?) RETURNING category_id, id, name;`
+    `INSERT INTO recipe_categories (slug, name)
+        VALUES (?, ?) RETURNING category_id AS id, slug, name;`
   ),
-  insert_recipe: db.prepare(
-    `INSERT INTO recipes (category_id, name, time, ingredients, steps) VALUES (
-      (SELECT category_id FROM recipe_categories WHERE id = ?),
-      ?, ?, ?, ?
+  update_category_by_slug: db.prepare(
+    `UPDATE recipe_categories SET slug = $new_slug, name = $new_name
+       WHERE slug = $slug RETURNING category_id AS id, slug, name;`
+  ),
+  insert_recipe_by_category_slug: db.prepare(
+    `INSERT INTO recipes (category_id, name, time, ingredients, steps, owner_id) VALUES (
+      (SELECT category_id FROM recipe_categories WHERE slug = ?),
+      ?, ?, ?, ?, ?
     ) 
-    RETURNING recipe_id, name, time, ingredients, steps;`
+    RETURNING recipe_id AS id, name, time, ingredients, steps, owner_id;`
   ),
-  get_categories: db.prepare("SELECT id, name FROM recipe_categories;"),
-  get_category_by_id: db.prepare(
-    "SELECT category_id, id, name FROM recipe_categories WHERE id = ?;"
+  get_category_summaries: db.prepare(
+    "SELECT slug, name FROM recipe_categories;"
   ),
-  get_recipes_by_category_id: db.prepare(
-    "SELECT recipe_id, name, time, ingredients, steps FROM recipes WHERE category_id = ?;"
+  get_category_summary_by_category_id: db.prepare(
+    "SELECT slug, name FROM recipe_categories WHERE category_id = ?;"
+  ),
+  get_category_by_slug: db.prepare(
+    "SELECT category_id AS id, slug, name FROM recipe_categories WHERE slug = ?;"
   ),
   get_recipe_by_id: db.prepare(
-    "SELECT recipe_id, category_id, name, time, ingredients, steps FROM recipes WHERE recipe_id = ?;"
+    "SELECT recipe_id AS id, category_id, name, time, ingredients, steps, owner_id FROM recipes WHERE recipe_id = ?;"
   ),
-  update_recipe: db.prepare(
+  get_recipes_by_category_id: db.prepare(
+    "SELECT recipe_id AS id, name, time, ingredients, steps, owner_id FROM recipes WHERE category_id = ?;"
+  ),
+  update_recipe_by_id: db.prepare(
     `UPDATE recipes 
-     SET name = ?, time = ?, ingredients = ?, steps = ? 
+     SET name = ?, time = ?, ingredients = ?, steps = ?
      WHERE recipe_id = ?
-     RETURNING recipe_id, name, time, ingredients, steps;`
+     RETURNING recipe_id AS id, name, time, ingredients, steps, owner_id;`
   ),
-  delete_recipe: db.prepare(
+  delete_recipe_by_id: db.prepare(
     "DELETE FROM recipes WHERE recipe_id = ?;"
   ),
 };
 
 export function getCategories() {
-  var categories = db_ops.get_categories.all();
-  return categories;
+  return db_ops.get_category_summaries.all().map((c) => {
+    return { slug: c.slug, name: c.name };
+  });
 }
 
-export function hasCategory(categoryId) {
-  let category = db_ops.get_category_by_id.get(categoryId);
+export function hasCategory(categorySlug) {
+  let category = db_ops.get_category_by_slug.get(categorySlug);
   return category != null;
 }
 
-export function getCategory(categoryId) {
-  let category = db_ops.get_category_by_id.get(categoryId);
-  if (category != null) {
-    category.recipes = db_ops.get_recipes_by_category_id.all(category.category_id);
+export function getCategory(categorySlug) {
+  const row = db_ops.get_category_by_slug.get(categorySlug);
+  if (row != null) {
+    const category = { slug: row.slug, name: row.name };
+    category.recipes = db_ops.get_recipes_by_category_id.all(row.id);
     return category;
   }
   return null;
@@ -76,18 +94,20 @@ export function getRecipe(recipeId) {
   return db_ops.get_recipe_by_id.get(recipeId);
 }
 
-export function addRecipe(categoryId, recipe) {
-  return db_ops.insert_recipe.get(
-    categoryId, 
+export function addRecipe(categorySlug, recipe, owner = null) {
+  const owner_id = owner && owner.id ? owner.id : null;
+  return db_ops.insert_recipe_by_category_slug.get(
+    categorySlug, 
     recipe.name, 
     recipe.time, 
     recipe.ingredients, 
-    recipe.steps
+    recipe.steps,
+    owner_id
   );
 }
 
 export function updateRecipe(recipeId, recipe) {
-  return db_ops.update_recipe.get(
+  return db_ops.update_recipe_by_id.get(
     recipe.name,
     recipe.time,
     recipe.ingredients,
@@ -97,11 +117,11 @@ export function updateRecipe(recipeId, recipe) {
 }
 
 export function deleteRecipe(recipeId) {
-  return db_ops.delete_recipe.run(recipeId);
+  return db_ops.delete_recipe_by_id.run(recipeId);
 }
 
-export function addCategory(categoryId, name) {
-  return db_ops.insert_category.get(categoryId, name);
+export function addCategory(categorySlug, name) {
+  return db_ops.insert_category.get(categorySlug, name);
 }
 
 export function validateRecipe(recipe) {

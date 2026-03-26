@@ -1,4 +1,13 @@
+import 'dotenv/config';
 import recipes from "../models/recipes.js";
+import { createUser } from "../models/user.js";
+
+// create admin and test users
+const adminUser = await createUser("admin", "adminpassword123");
+console.log("Created admin user:", adminUser);
+
+const testUser = await createUser("test", "testpassword123");
+console.log("Created test user:", testUser);
 
 const recipe_categories = {
   "sniadania": {
@@ -95,7 +104,8 @@ Object.entries(recipe_categories).map(([id, data]) => {
   let category = recipes.addCategory(id, data.name);
   console.log("Created category:", category);
   for (let recipe of data.recipes) {
-    let r = recipes.addRecipe(category.id, recipe);
+    // new addRecipe signature accepts an owner object (pass test user)
+    let r = recipes.addRecipe(category.slug, recipe, testUser);
     console.log("Created recipe:", r);
   }
 });

@@ -2,26 +2,35 @@
 
 <main>
   <h1><%= title %></h1>
-  <ul id="recipes">
-    <% category.recipes.forEach(function(recipe){ %>
-    <li>
-      <strong><%= recipe.name %></strong> - <%= recipe.time %>
-      <p><%= recipe.ingredients %></p>
-      <div class="recipe-actions">
-        <form action="/przepisy/<%= category.id %>/edit/<%= recipe.recipe_id %>" method="GET" style="display: inline;">
-          <button type="submit">Edytuj</button>
-        </form>
-        <form action="/przepisy/<%= category.id %>/delete/<%= recipe.recipe_id %>" method="POST" style="display: inline;">
-          <button type="submit" onclick="return confirm('Czy na pewno chcesz usunąć ten przepis?')">Usuń</button>
-        </form>
-      </div>
-    </li>
-    <% }) %>
-  </ul>
-  <div>
-    <h3>Dodaj przepis</h3>
-    <%- include("forms/new_recipe.ejs") %>
-  </div>
+
+  <% if (category.recipes && category.recipes.length) { %>
+    <ul id="recipes">
+      <% category.recipes.forEach(function(recipe){ %>
+        <li>
+          <strong><a href="/przepisy/<%= category.slug %>/edit/<%= recipe.id %>"><%= recipe.name %></a></strong>
+          <div>Czas: <%= recipe.time %></div>
+          <div>Właściciel: <%= recipe.owner_id ? recipe.owner_id : "—" %></div>
+
+          <% if (user && (user.username === "admin" || Number(user.id) == Number(recipe.owner_id))) { %>
+            <a href="/przepisy/<%= category.slug %>/edit/<%= recipe.id %>">Edytuj</a>
+            <form action="/przepisy/<%= category.slug %>/delete/<%= recipe.id %>" method="POST" style="display:inline;margin-left:8px">
+              <button type="submit" onclick="return confirm('Usuń przepis?')">Usuń</button>
+            </form>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p>Brak przepisów w tej kategorii.</p>
+  <% } %>
+
+  <% if (user) { %>
+    <form action="/przepisy/<%= category.slug %>/new" method="POST" style="margin-top:1rem">
+      <button type="submit">Dodaj nowy przepis</button>
+    </form>
+  <% } else { %>
+    <p><a href="/auth/login?next=/przepisy/<%= category.slug %>">Zaloguj się</a>, aby dodawać przepisy.</p>
+  <% } %>
 </main>
 
 <%- include("foot.partial.ejs") %>

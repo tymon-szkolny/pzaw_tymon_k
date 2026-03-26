@@ -10,7 +10,7 @@
   </ul>
   <% } %>
   
-  <form action="/przepisy/<%=category.id%>/edit/<%= recipe.recipe_id %>" method="POST">
+  <form action="/przepisy/<%=category.slug%>/edit/<%= recipe.recipe_id %>" method="POST">
     <div>
       <label for="recipe_name">Nazwa</label>
       <input
@@ -59,7 +59,7 @@
     </div>
     <div>
       <button type="submit">Zapisz zmiany</button>
-      <a href="/przepisy/<%= category.id %>">Anuluj</a>
+      <a href="/przepisy/<%= category.slug %>">Anuluj</a>
     </div>
   </form>
 </main>

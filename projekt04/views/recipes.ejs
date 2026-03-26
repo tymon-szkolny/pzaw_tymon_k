@@ -4,8 +4,17 @@
   <h1><%= title %></h1>
   <ul id="categories">
     <% categories.forEach(function(category){ %>
-    <li><a href="/przepisy/<%= category.id %>"><%= category.name %></a></li>
-    <% }) %>
+    <li>
+      <a href="/przepisy/<%= category.slug %>"><%= category.name %></a>
+      <% if (user) { %>
+      <form action="/przepisy/<%= category.slug %>/new" method="POST" style="display:inline;margin-left:8px">
+        <button type="submit">Nowy przepis</button>
+      </form>
+      <% } else { %>
+      <span style="margin-left:8px;"><a href="/auth/login?next=/przepisy/<%= category.slug %>">Zaloguj się, aby dodać</a></span>
+      <% } %>
+    </li>
+    <% }); %>
   </ul>
 </main>
 

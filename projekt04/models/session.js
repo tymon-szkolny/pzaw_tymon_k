@@ -1,10 +1,11 @@
 import { DatabaseSync } from "node:sqlite";
 import { randomBytes } from "node:crypto";
+import { getUser } from "./user.js";
 
 const db_path = "./db.sqlite";
 const db = new DatabaseSync(db_path, { readBigInts: true });
 
-const SESSION_COOKIE = "__Host-fisz-id";
+const SESSION_COOKIE = "__Host-recipe-id";
 const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
 
 db.exec(`
@@ -23,13 +24,14 @@ const db_ops = {
   get_session: db.prepare(
     "SELECT id, user_id, created_at from fc_session WHERE id = ?;"
   ),
+  delete_session: db.prepare("DELETE FROM fc_session WHERE id = ?;"),
 };
 
-function createSession(user, res) {
+function createSession(user_id, res) {
   let sessionId = randomBytes(8).readBigInt64BE();
   let createdAt = Date.now();
 
-  let session = db_ops.create_session.get(sessionId, user, createdAt);
+  let session = db_ops.create_session.get(sessionId, user_id, createdAt);
   res.locals.session = session;
 
   res.cookie(SESSION_COOKIE, session.id.toString(), {
@@ -38,6 +40,13 @@ function createSession(user, res) {
     secure: true,
   });
   return session;
+}
+
+function deleteSession(res) {
+  if (res.locals.session != null) {
+    db_ops.delete_session.run(res.locals.session.id);
+  }
+  res.clearCookie(SESSION_COOKIE);
 }
 
 function sessionHandler(req, res, next) {
@@ -52,11 +61,11 @@ function sessionHandler(req, res, next) {
   }
 
   if (sessionId != null) session = db_ops.get_session.get(sessionId);
-  
+
   if (session != null) {
     res.locals.session = session;
     res.locals.user = session.user_id != null ? getUser(session.user_id) : null;
-    
+
     res.cookie(SESSION_COOKIE, res.locals.session.id.toString(), {
       maxAge: ONE_WEEK,
       httpOnly: true,
@@ -84,5 +93,6 @@ function sessionHandler(req, res, next) {
 
 export default {
   createSession,
+  deleteSession,
   sessionHandler,
 };

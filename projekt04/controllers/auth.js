@@ -1,5 +1,5 @@
-import { createSession, deleteSession } from "./../models/session.js";
-import { createUser, validatePassword } from "./../models/user.js";
+import session from "../models/session.js";
+import { createUser, validatePassword } from "../models/user.js";
 
 export function signup_get(req, res) {
   let form = {
@@ -24,7 +24,7 @@ export async function signup_post(req, res) {
   if (Object.entries(form.errors).length == 0) {
     let user = await createUser(form.data["username"], form.data["password"]);
     if (user != null) {
-      createSession(user.id, res);
+      session.createSession(user.id, res);
       res.redirect("/");
       return;
     } else {
@@ -71,7 +71,7 @@ export async function login_post(req, res) {
     if (user_id == null) {
       form.errors["username"] = "Niepoprawna nazwa użytkownika lub hasło";
     } else {
-      createSession(user_id, res);
+      session.createSession(user_id, res);
       res.redirect(nextUrl || "/");
       return;
     }
@@ -82,7 +82,7 @@ export async function login_post(req, res) {
 
 function logout(req, res) {
   if (res.locals.user != null) {
-    deleteSession(res);
+    session.deleteSession(res);
   }
   res.redirect("/");
 }

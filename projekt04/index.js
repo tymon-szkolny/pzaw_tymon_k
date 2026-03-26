@@ -1,15 +1,32 @@
+import 'dotenv/config';
 import express from "express";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import recipes from "./models/recipes.js";
-import session from "./models/session.js";  
+import session from "./models/session.js";
+import auth from "./controllers/auth.js";
 
-const port = 8000;
+const port = process.env.PORT || 8000;
+const LAST_VIEWED_COOKIE = "__Host-fisz-last-viewed";
+const ONE_DAY = 24 * 60 * 60 * 1000;
+const ONE_MONTH = 30 * ONE_DAY;
+const SECRET = process.env.SECRET;
+
+if (SECRET == null) {
+  console.error(
+    `SECRET environment variable missing.
+     Please create an env file or provide SECRET via environment variables.`,
+  );
+  process.exit(1);
+}
 
 const app = express();
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded());
+app.use(cookieParser(SECRET));
 app.use(morgan("dev"));
+app.use(session.sessionHandler);
 
 const authRouter = express.Router();
 authRouter.get("/signup", auth.signup_get);
@@ -19,7 +36,8 @@ authRouter.post("/login", auth.login_post);
 authRouter.get("/logout", auth.logout);
 app.use("/auth", authRouter);
 
-app.get("/", (req, res) => {
+// require login when entering site
+app.get("/", auth.login_required, (req, res) => {
   res.render("index", {
     title: "Moje Przepisy",
   });
@@ -32,8 +50,9 @@ app.get("/przepisy", (req, res) => {
   });
 });
 
-app.get("/przepisy/:category_id", (req, res) => {
-  const category = recipes.getCategory(req.params.category_id);
+app.get("/przepisy/:category_slug", (req, res) => {
+  const category_slug = req.params.category_slug;
+  const category = recipes.getCategory(category_slug);
   if (category != null) {
     res.render("category", {
       title: category.name,
@@ -44,9 +63,10 @@ app.get("/przepisy/:category_id", (req, res) => {
   }
 });
 
-app.post("/przepisy/:category_id/new", (req, res) => {
-  const category_id = req.params.category_id;
-  if (!recipes.hasCategory(category_id)) {
+// create new recipe (POST only). allow users to see form via POST render
+app.post("/przepisy/:category_slug/new", auth.login_required, (req, res) => {
+  const category_slug = req.params.category_slug;
+  if (!recipes.hasCategory(category_slug)) {
     res.sendStatus(404);
   } else {
     let recipe_data = {
@@ -57,8 +77,8 @@ app.post("/przepisy/:category_id/new", (req, res) => {
     };
     var errors = recipes.validateRecipe(recipe_data);
     if (errors.length == 0) {
-      recipes.addRecipe(category_id, recipe_data);
-      res.redirect(`/przepisy/${category_id}`);
+      recipes.addRecipe(category_slug, recipe_data, res.locals.user);
+      res.redirect(`/przepisy/${category_slug}`);
     } else {
       res.status(400);
       res.render("new_recipe", {
@@ -69,24 +89,32 @@ app.post("/przepisy/:category_id/new", (req, res) => {
         ingredients: req.body.ingredients,
         steps: req.body.steps,
         category: {
-          id: category_id,
+          slug: category_slug,
         },
       });
     }
   }
 });
 
-app.get("/przepisy/:category_id/edit/:recipe_id", (req, res) => {
-  const category_id = req.params.category_id;
+app.get("/przepisy/:category_slug/edit/:recipe_id", auth.login_required, (req, res) => {
+  const category_slug = req.params.category_slug;
   const recipe_id = req.params.recipe_id;
   
   const recipe = recipes.getRecipe(recipe_id);
   if (recipe != null) {
+    // permission check: admin or owner
+    const isAdmin = res.locals.user && res.locals.user.username === "admin";
+    const isOwner = res.locals.user && recipe.owner_id != null && Number(res.locals.user.id) == Number(recipe.owner_id);
+    if (!isAdmin && !isOwner) {
+      res.sendStatus(403);
+      return;
+    }
+
     res.render("edit_recipe", {
       title: "Edytuj Przepis",
       recipe,
       category: {
-        id: category_id,
+        slug: category_slug,
       },
     });
   } else {
@@ -94,14 +122,22 @@ app.get("/przepisy/:category_id/edit/:recipe_id", (req, res) => {
   }
 });
 
-app.post("/przepisy/:category_id/edit/:recipe_id", (req, res) => {
-  const category_id = req.params.category_id;
+app.post("/przepisy/:category_slug/edit/:recipe_id", auth.login_required, (req, res) => {
+  const category_slug = req.params.category_slug;
   const recipe_id = req.params.recipe_id;
   
   const recipe = recipes.getRecipe(recipe_id);
   if (recipe == null) {
     res.sendStatus(404);
   } else {
+    // permission check
+    const isAdmin = res.locals.user && res.locals.user.username === "admin";
+    const isOwner = res.locals.user && recipe.owner_id != null && Number(res.locals.user.id) == Number(recipe.owner_id);
+    if (!isAdmin && !isOwner) {
+      res.sendStatus(403);
+      return;
+    }
+
     let recipe_data = {
       name: req.body.name,
       time: req.body.time,
@@ -111,30 +147,42 @@ app.post("/przepisy/:category_id/edit/:recipe_id", (req, res) => {
     var errors = recipes.validateRecipe(recipe_data);
     if (errors.length == 0) {
       recipes.updateRecipe(recipe_id, recipe_data);
-      res.redirect(`/przepisy/${category_id}`);
+      res.redirect(`/przepisy/${category_slug}`);
     } else {
       res.status(400);
       res.render("edit_recipe", {
         errors,
         title: "Edytuj Przepis",
         recipe: {
-          recipe_id: recipe_id,
+          id: recipe_id,
           ...recipe_data,
         },
         category: {
-          id: category_id,
+          slug: category_slug,
         },
       });
     }
   }
 });
 
-app.post("/przepisy/:category_id/delete/:recipe_id", (req, res) => {
-  const category_id = req.params.category_id;
+app.post("/przepisy/:category_slug/delete/:recipe_id", auth.login_required, (req, res) => {
+  const category_slug = req.params.category_slug;
   const recipe_id = req.params.recipe_id;
   
+  const recipe = recipes.getRecipe(recipe_id);
+  if (!recipe) {
+    res.sendStatus(404);
+    return;
+  }
+  const isAdmin = res.locals.user && res.locals.user.username === "admin";
+  const isOwner = res.locals.user && recipe.owner_id != null && Number(res.locals.user.id) == Number(recipe.owner_id);
+  if (!isAdmin && !isOwner) {
+    res.sendStatus(403);
+    return;
+  }
+
   recipes.deleteRecipe(recipe_id);
-  res.redirect(`/przepisy/${category_id}`);
+  res.redirect(`/przepisy/${category_slug}`);
 });
 
 app.listen(port, () => {
