@@ -36,7 +36,6 @@ authRouter.post("/login", auth.login_post);
 authRouter.get("/logout", auth.logout);
 app.use("/auth", authRouter);
 
-// require login when entering site
 app.get("/", auth.login_required, (req, res) => {
   res.render("index", {
     title: "Moje Przepisy",
@@ -63,7 +62,6 @@ app.get("/przepisy/:category_slug", (req, res) => {
   }
 });
 
-// create new recipe (POST only). allow users to see form via POST render
 app.post("/przepisy/:category_slug/new", auth.login_required, (req, res) => {
   const category_slug = req.params.category_slug;
   if (!recipes.hasCategory(category_slug)) {
@@ -102,7 +100,6 @@ app.get("/przepisy/:category_slug/edit/:recipe_id", auth.login_required, (req, r
   
   const recipe = recipes.getRecipe(recipe_id);
   if (recipe != null) {
-    // permission check: admin or owner
     const isAdmin = res.locals.user && res.locals.user.username === "admin";
     const isOwner = res.locals.user && recipe.owner_id != null && Number(res.locals.user.id) == Number(recipe.owner_id);
     if (!isAdmin && !isOwner) {
@@ -116,6 +113,7 @@ app.get("/przepisy/:category_slug/edit/:recipe_id", auth.login_required, (req, r
       category: {
         slug: category_slug,
       },
+      errors: [],
     });
   } else {
     res.sendStatus(404);
@@ -130,7 +128,6 @@ app.post("/przepisy/:category_slug/edit/:recipe_id", auth.login_required, (req, 
   if (recipe == null) {
     res.sendStatus(404);
   } else {
-    // permission check
     const isAdmin = res.locals.user && res.locals.user.username === "admin";
     const isOwner = res.locals.user && recipe.owner_id != null && Number(res.locals.user.id) == Number(recipe.owner_id);
     if (!isAdmin && !isOwner) {
@@ -183,6 +180,25 @@ app.post("/przepisy/:category_slug/delete/:recipe_id", auth.login_required, (req
 
   recipes.deleteRecipe(recipe_id);
   res.redirect(`/przepisy/${category_slug}`);
+});
+
+app.get("/przepisy/:category_slug/:recipe_id", (req, res) => {
+  const category_slug = req.params.category_slug;
+  const recipe_id = req.params.recipe_id;
+
+  const recipe = recipes.getRecipe(recipe_id);
+  if (!recipe) {
+    res.sendStatus(404);
+    return;
+  }
+
+  res.render("recipe", {
+    title: recipe.name,
+    recipe,
+    category: { slug: category_slug },
+    errors: [],
+    user: res.locals.user,
+  });
 });
 
 app.listen(port, () => {

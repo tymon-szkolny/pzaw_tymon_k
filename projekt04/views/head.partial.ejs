@@ -7,3 +7,16 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+  <header>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/przepisy">Przepisy</a>
+      <% if (user) { %>
+        <span style="margin-left:1rem">Witaj, <%= user.username %></span>
+        <a href="/auth/logout" style="margin-left:0.5rem">Wyloguj</a>
+      <% } else { %>
+        <a href="/auth/login" style="margin-left:1rem">Zaloguj</a>
+        <a href="/auth/signup" style="margin-left:0.5rem">Rejestracja</a>
+      <% } %>
+    </nav>
+  </header>

@@ -2,7 +2,7 @@
 
 <main>
   <h1><%= title %></h1>
-  <% if (locals.errors && errors.length > 0) { %>
+  <% if (errors && errors.length > 0) { %>
   <ul id="errors">
     <% errors.forEach(function(error){ %>
     <li><%= error %></li>
@@ -10,7 +10,8 @@
   </ul>
   <% } %>
   
-  <form action="/przepisy/<%=category.slug%>/edit/<%= recipe.recipe_id %>" method="POST">
+  <form action="/przepisy/<%= category.slug %>/edit/<%= recipe.id %>" method="POST">
+    <input type="hidden" name="recipe_id" value="<%= recipe.id %>">
     <div>
       <label for="recipe_name">Nazwa</label>
       <input

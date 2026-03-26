@@ -1,0 +1,36 @@
+<%- include("head.partial.ejs") %>
+
+<main>
+  <h1><%= title %></h1>
+
+  <div>
+    <strong>Czas:</strong> <%= recipe.time %>
+  </div>
+
+  <div style="margin-top:1rem;">
+    <h2>Składniki</h2>
+    <pre style="white-space:pre-wrap;"><%= recipe.ingredients %></pre>
+  </div>
+
+  <div style="margin-top:1rem;">
+    <h2>Przygotowanie</h2>
+    <pre style="white-space:pre-wrap;"><%= recipe.steps %></pre>
+  </div>
+
+  <div style="margin-top:1rem;">
+    <strong>Właściciel:</strong> <%= recipe.owner_id ? recipe.owner_id : "—" %>
+  </div>
+
+  <div style="margin-top:1rem;">
+    <a href="/przepisy/<%= category.slug %>">Powrót do listy</a>
+
+    <% if (user && (user.username === "admin" || Number(user.id) == Number(recipe.owner_id))) { %>
+      &nbsp;|&nbsp;<a href="/przepisy/<%= category.slug %>/edit/<%= recipe.id %>">Edytuj</a>
+      <form action="/przepisy/<%= category.slug %>/delete/<%= recipe.id %>" method="POST" style="display:inline;margin-left:8px">
+        <button type="submit" onclick="return confirm('Usuń przepis?')">Usuń</button>
+      </form>
+    <% } %>
+  </div>
+</main>
+
+<%- include("foot.partial.ejs") %>
