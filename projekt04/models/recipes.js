@@ -53,10 +53,18 @@ const db_ops = {
     "SELECT category_id AS id, slug, name FROM recipe_categories WHERE slug = ?;"
   ),
   get_recipe_by_id: db.prepare(
-    "SELECT recipe_id AS id, category_id, name, time, ingredients, steps, owner_id FROM recipes WHERE recipe_id = ?;"
+    `SELECT r.recipe_id AS id, r.category_id, r.name, r.time, r.ingredients, r.steps, r.owner_id,
+            u.username AS owner_username
+     FROM recipes r
+     LEFT JOIN fc_users u ON r.owner_id = u.id
+     WHERE r.recipe_id = ?;`
   ),
   get_recipes_by_category_id: db.prepare(
-    "SELECT recipe_id AS id, name, time, ingredients, steps, owner_id FROM recipes WHERE category_id = ?;"
+    `SELECT r.recipe_id AS id, r.name, r.time, r.ingredients, r.steps, r.owner_id,
+            u.username AS owner_username
+     FROM recipes r
+     LEFT JOIN fc_users u ON r.owner_id = u.id
+     WHERE r.category_id = ?;`
   ),
   update_recipe_by_id: db.prepare(
     `UPDATE recipes 

@@ -18,7 +18,17 @@
   </div>
 
   <div style="margin-top:1rem;">
-    <strong>Właściciel:</strong> <%= recipe.owner_id ? recipe.owner_id : "—" %>
+    <% 
+      const isOwner = user && recipe.owner_id != null && Number(user.id) === Number(recipe.owner_id);
+    %>
+    <strong>Właściciel:</strong>
+    <% if (isOwner) { %>
+      Ty
+    <% } else if (recipe.owner_username) { %>
+      <%= recipe.owner_username %>
+    <% } else { %>
+      —
+    <% } %>
   </div>
 
   <div style="margin-top:1rem;">

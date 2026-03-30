@@ -5,11 +5,7 @@ Aplikacja webowa do zarządzania przepisami kulinarnymi. Umożliwia przeglądani
 ## Uruchomienie
 
 ```bash
-npm install express
-npm install ejs
-npm install morgan
-npm install cookie-parser
-npm install argon2
+npm install
 node utils/generate_env.sh > .env
 node utils/populate_db.js
 node index.js
