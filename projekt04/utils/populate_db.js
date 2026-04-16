@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import recipes from "../models/recipes.js";
 import { createUser } from "../models/user.js";
+import recipes from "../models/recipes.js";
 
 const adminUser = await createUser("admin", "adminpassword123");
 console.log("Created admin user:", adminUser);

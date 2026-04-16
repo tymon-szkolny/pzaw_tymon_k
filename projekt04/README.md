@@ -6,7 +6,7 @@ Aplikacja webowa do zarządzania przepisami kulinarnymi. Umożliwia przeglądani
 
 ```bash
 npm install
-node utils/generate_env.sh > .env
+bash utils/generate_env.sh > .env
 node utils/populate_db.js
 node index.js
 ```
