@@ -53,6 +53,32 @@ Serwer będzie dostępny pod adresem: `http://localhost:8000`
 - Hasło: `adminpassword123`
 - Uprawnienia: może edytować i usuwać wszystkie przepisy
 
+## Obsługiwane ścieżki
+
+| Metoda | Ścieżka | Opis | Wymaga zalogowania |
+|--------|---------|------|-------------------|
+| `GET` | `/auth/signup` | Formularz rejestracji nowego użytkownika | nie |
+| `POST` | `/auth/signup` | Przesyłanie danych rejestracyjnych | nie |
+| `GET` | `/auth/login` | Formularz logowania | nie |
+| `POST` | `/auth/login` | Przesyłanie danych logowania | nie |
+| `GET` | `/auth/logout` | Wylogowanie użytkownika | tak |
+| `GET` | `/` | Strona główna dla zalogowanego użytkownika | tak |
+| `GET` | `/przepisy` | Lista kategorii przepisów | nie |
+| `GET` | `/przepisy/:category_slug` | Lista przepisów dla danej kategorii | nie |
+| `POST` | `/przepisy/:category_slug/new` | Dodanie nowego przepisu do kategorii | tak |
+| `GET` | `/przepisy/:category_slug/edit/:recipe_id` | Formularz edycji przepisu | tak (właściciel/admin) |
+| `POST` | `/przepisy/:category_slug/edit/:recipe_id` | Zapis edycji przepisu | tak (właściciel/admin) |
+| `POST` | `/przepisy/:category_slug/delete/:recipe_id` | Usunięcie przepisu | tak (właściciel/admin) |
+| `GET` | `/przepisy/:category_slug/:recipe_id` | Szczegóły wybranego przepisu | nie |
+
+### Parametry i walidacja
+
+- `:category_slug` — identyfikator kategorii w URL
+- `:recipe_id` — identyfikator przepisu
+- pola formularza przepisu: `name`, `time`, `ingredients`, `steps`
+
+> Nieznane trasy przekierowują na stronę główną `/`.
+
 ## Struktura projektu
 
 - `controllers/` — logika uwierzytelniania
