@@ -7,17 +7,17 @@
     <strong>Czas:</strong> <%= recipe.time %>
   </div>
 
-  <div style="margin-top:1rem;">
+  <div class="recipe-section">
     <h2>Składniki</h2>
-    <pre style="white-space:pre-wrap;"><%= recipe.ingredients %></pre>
+    <pre class="recipe-text"><%= recipe.ingredients %></pre>
   </div>
 
-  <div style="margin-top:1rem;">
+  <div class="recipe-section">
     <h2>Przygotowanie</h2>
-    <pre style="white-space:pre-wrap;"><%= recipe.steps %></pre>
+    <pre class="recipe-text"><%= recipe.steps %></pre>
   </div>
 
-  <div style="margin-top:1rem;">
+  <div class="recipe-section">
     <% 
       const isOwner = user && recipe.owner_id != null && Number(user.id) === Number(recipe.owner_id);
     %>
@@ -31,12 +31,13 @@
     <% } %>
   </div>
 
-  <div style="margin-top:1rem;">
+  <div class="recipe-actions">
     <a href="/przepisy/<%= category.slug %>">Powrót do listy</a>
 
     <% if (user && (user.username === "admin" || Number(user.id) == Number(recipe.owner_id))) { %>
-      &nbsp;|&nbsp;<a href="/przepisy/<%= category.slug %>/edit/<%= recipe.id %>">Edytuj</a>
-      <form action="/przepisy/<%= category.slug %>/delete/<%= recipe.id %>" method="POST" style="display:inline;margin-left:8px">
+      <span class="divider">|</span>
+      <a href="/przepisy/<%= category.slug %>/edit/<%= recipe.id %>">Edytuj</a>
+      <form action="/przepisy/<%= category.slug %>/delete/<%= recipe.id %>" method="POST" class="inline-form">
         <button type="submit" onclick="return confirm('Usuń przepis?')">Usuń</button>
       </form>
     <% } %>

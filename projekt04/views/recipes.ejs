@@ -7,11 +7,11 @@
     <li>
       <a href="/przepisy/<%= category.slug %>"><%= category.name %></a>
       <% if (user) { %>
-      <form action="/przepisy/<%= category.slug %>/new" method="POST" style="display:inline;margin-left:8px">
+      <form action="/przepisy/<%= category.slug %>/new" method="POST" class="inline-form">
         <button type="submit">Nowy przepis</button>
       </form>
       <% } else { %>
-      <span style="margin-left:8px;"><a href="/auth/login?next=/przepisy/<%= category.slug %>">Zaloguj się, aby dodać</a></span>
+      <span class="login-prompt"><a class="login-link" href="/auth/login?next=/przepisy/<%= category.slug %>">Zaloguj się, aby dodać</a></span>
       <% } %>
     </li>
     <% }); %>
