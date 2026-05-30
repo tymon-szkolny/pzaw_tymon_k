@@ -201,6 +201,11 @@ app.get("/przepisy/:category_slug/:recipe_id", (req, res) => {
   });
 });
 
+// Catch-all route for undefined paths - redirect to home
+app.use((req, res) => {
+  res.redirect("/");
+});
+
 app.listen(port, () => {
   console.log(`Serwer działa na http://localhost:${port}`);
 });

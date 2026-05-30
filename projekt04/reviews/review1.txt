@@ -1,0 +1,28 @@
+Reviewer: Maciej Roszak
+Godzina i data: 00:18 31.05.2026
+
+działanie:
+    domyślnie nie mozna odpalić na windowsie
+    sterowanie polegające na przyciskach u góry w takiej formie jest troche nieintuicyjene 
+
+wygląd:
+    masz tylko 
+    przyciski szare wyglądają na nie aktywne
+    przycisk przepisy nie wygląda jak przycisk
+    nazwa użytkownika mogłaby być bardziej wyróżniona  
+    responsywna
+    ładne widoki przepisów
+
+readme:
+    czytelne i przejrzyste
+    wyjaśniona struktura projektu
+    nie ma admina w readme
+
+kod:
+    cały czas console.log wyświetla sesje i undefined user po każdej zmianie ścieszki, to tak troche useless
+    kod odporny na wpisywanie za długich ciągów znaków ale sie rozjeżdża strona troche jak nazwa jest za długa
+    odporny na sql i html injection
+    ogólnie wygląda git
+
+personalne:
+    sernik z rodzynkami??????

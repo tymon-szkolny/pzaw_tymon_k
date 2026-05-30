@@ -42,6 +42,9 @@ const db_ops = {
 };
 
 export async function createUser(username, password) {
+  // Trim whitespace from username
+  username = username.trim();
+  
   let existing_user = db_ops.find_by_username.get(username);
 
   if (existing_user != null) {
@@ -54,6 +57,9 @@ export async function createUser(username, password) {
 }
 
 export async function validatePassword(username, password) {
+  // Trim whitespace from username
+  username = username.trim();
+  
   let auth_data = db_ops.get_auth_data.get(username);
   if (auth_data != null) {
     if (await argon2.verify(auth_data.passhash, password, HASH_PARAMS)) {

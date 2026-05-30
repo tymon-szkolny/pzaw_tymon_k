@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "setup": "npm install && npm run generate-env && npm run populate-db",
-    "generate-env": "bash utils/generate_env.sh > .env",
+    "generate-env": "node utils/generate_env.js",
     "populate-db": "node utils/populate_db.js",
     "start": "node index.js"
   },

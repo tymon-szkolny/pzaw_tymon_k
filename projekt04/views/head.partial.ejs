@@ -9,11 +9,13 @@
 <body>
   <header>
     <nav>
-      <div class="brand"><a href="/">Home</a></div>
+      <div class="brand">
+        <a href="/">Home</a>
+        <a href="/przepisy" class="nav-recipe-link">Przepisy</a>
+      </div>
       <div class="nav-links">
-        <a href="/przepisy">Przepisy</a>
         <% if (user) { %>
-          <span>Witaj, <%= user.username %></span>
+          <span class="user-greeting">👤 <%= user.username %></span>
           <a href="/auth/logout" class="button">Wyloguj</a>
         <% } else { %>
           <a href="/auth/login" class="button">Zaloguj</a>

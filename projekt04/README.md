@@ -18,28 +18,40 @@ Projekt używa:
 - edycja i usuwanie przepisów przez właściciela lub administratora
 - estetyczny, responsywny interfejs CSS
 
-## Uruchomienie
+## Instalacja i uruchomienie
 
-1. Zainstaluj zależności i przygotuj środowisko:
+### Krok 1: Zainstaluj zależności i przygotuj środowisko
 
 ```bash
 npm run setup
 ```
 
-2. Uruchom serwer:
+### Krok 2: Uruchom aplikację
 
 ```bash
 npm start
 ```
 
-3. Otwórz stronę w przeglądarce:
+Serwer będzie dostępny pod adresem: `http://localhost:8000`
 
-`http://localhost:8000`
+## Dostępne polecenia npm
+
+| Komenda | Opis |
+|---------|------|
+| `npm start` | Uruchamia serwer aplikacji |
+| `npm run setup` | Instaluje zależności, generuje `.env` i umieszcza dane testowe |
+| `npm run generate-env` | Generuje plik `.env` z losowymi sekretami |
+| `npm run populate-db` | Dodaje dane testowe do bazy danych |
 
 ## Testowe konto
 
 - Login: `test`
 - Hasło: `testpassword123`
+
+**Konto admin**
+- Login: `admin`
+- Hasło: `adminpassword123`
+- Uprawnienia: może edytować i usuwać wszystkie przepisy
 
 ## Struktura projektu
 
