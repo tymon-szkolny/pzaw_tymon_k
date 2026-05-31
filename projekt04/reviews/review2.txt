@@ -1,2 +1,33 @@
 Reviewer: Kacper Ferber
-Godzina i data: 
+Godzina i data: 12:45 31.05.2026
+
+README: 
+1. Ładnie napisane, czytelne.
+2. Brakuje paru informacji dotyczących setupu, m. in. o komendach npm, typu populate-db, trzeba ręcznie zajrzeć w config.json, jeśli coś nie działa.
+
+Instalacja aplikacji: 
+1. Jedna komenda instaluje całe środowisko, wygodne.
+2. Aplikacja odpala się bez zarzutu.
+
+Styl: 
+1. Przejrzysty
+2. przy rejestrowaniu trochę mało widoczny jasnoszary przycisk wyślij pod formularzem ale to minor inconvenience
+3. Przeniósłbym odnośnik 'przepisy' na lewo, obok 'Home'
+
+Funkcjonalność:
+1. Konto testowe tworzy się dopiero po uruchomieniu komendy populate-db, ale to ok. Problem u mnie był taki że ta komenda się nie wykonała ale to chyba przez tego windowsa
+2. Rejestracja i logowanie użytkownika bezproblemowa
+3. W konsoli wypisuje się dużo komunikatów sesji więc ciężko trackować poszczególne ważniejsze komunikaty (minor inconvenience).
+4. Czytelny podział przepisów na kategorie, same przepisy też ładnie czytelne, treści się nie czepiam bo nieistotne, może jedynie lepiej by składniki pojawiały się w liście ale tak jak jest, to też jest dobrze (minor inconvenience)
+5. Łatwa obsługa strony, dodawanie, edytowanie, usuwanie przepisów.
+6. Szkoda że nie można dodawać własnych kategorii, np. kolacja, podwieczorek, na imprezę itp.
+7. Przy dodawaniu przepisów brak przycisku powrót (minor inconvenience).
+8. Konto admin jest w bazie danych ale nie znam hasła więc nie sprawdzę
+
+Bugtesting:
+1. Przy podaniu ścieżki typu http://localhost:8000/idkjakasfajnasciezka, brak przekierowania do strony głownej, wyświetla się Cannot GET /idkjakasfajnasciezka.
+2. Odporne na ataki typu wpisanie w pole tekstowe `); DROP TABLE fc_users;
+3. Da się utworzyć konto o tej samej nazwie ale spacji na końcu.
+4. Hasło może mieć chyba nieskończoną liczbę znaków, ale błędu nie wywala nawet gdy tych znaków jest w cholerę (minor inconvenience)
+
+Reszta bez zarzutu.
